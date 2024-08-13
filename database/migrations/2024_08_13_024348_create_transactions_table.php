@@ -16,6 +16,7 @@ return new class extends Migration
             $table->integer('amount');
             $table->timestamp('transaction_date');
             $table->text('description')->nullable();
+            $table->string('image')->nullable();
             $table->timestamps();
             $table->softDeletes();
 

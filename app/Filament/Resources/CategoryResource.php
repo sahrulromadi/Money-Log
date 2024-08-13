@@ -13,6 +13,8 @@ use Filament\Forms\Components\Section;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\CategoryResource\Pages;
@@ -43,7 +45,6 @@ class CategoryResource extends Resource
                             ->offIcon('heroicon-s-currency-dollar')
                             ->onColor('success')
                             ->offColor('danger'),
-
                     ]),
             ]);
     }
@@ -64,6 +65,14 @@ class CategoryResource extends Resource
                     ->falseColor('danger')
                     ->boolean()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->date('d/m/Y')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->date('d/m/Y')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 SelectFilter::make('is_income')

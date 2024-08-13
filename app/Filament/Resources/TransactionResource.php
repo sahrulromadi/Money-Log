@@ -8,6 +8,9 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\Transaction;
 use Filament\Resources\Resource;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -24,19 +27,25 @@ class TransactionResource extends Resource
     {
         return $form
             ->schema([
+                Forms\Components\Select::make('category_id')
+                    ->relationship('category', 'category_name')
+                    ->required(),
                 Forms\Components\TextInput::make('amount')
+                    ->placeholder('Rp1')
                     ->required()
                     ->numeric(),
-                Forms\Components\DateTimePicker::make('transaction_date')
+                Forms\Components\DatePicker::make('transaction_date')
+                    ->label('Date')
+                    ->placeholder('Dec 18, 2024')
+                    ->native(false)
                     ->required(),
                 Forms\Components\Textarea::make('description')
                     ->columnSpanFull(),
-                Forms\Components\Select::make('user_id')
-                    ->relationship('user', 'name')
-                    ->required(),
-                Forms\Components\Select::make('category_id')
-                    ->relationship('category', 'id')
-                    ->required(),
+                Forms\Components\FileUpload::make('image')
+                    ->image()
+                    ->imageEditor()
+                    ->panelLayout('grid')
+                    ->directory('images'),
             ]);
     }
 
@@ -44,39 +53,57 @@ class TransactionResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\ImageColumn::make('image'),
+                Tables\Columns\TextColumn::make('category.category_name')
+                    ->label('Transaction')
+                    ->description(fn(Transaction $record): string => $record->description)
+                    ->searchable(['category_name', 'description'])
+                    ->sortable(),
+                Tables\Columns\IconColumn::make('category.is_income')
+                    ->label('Type')
+                    ->trueIcon('heroicon-s-currency-dollar')
+                    ->falseIcon('heroicon-s-currency-dollar')
+                    ->trueColor('success')
+                    ->falseColor('danger')
+                    ->boolean()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('amount')
                     ->numeric()
+                    ->money('IDR', locale: 'ID')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('transaction_date')
-                    ->dateTime()
+                    ->label('Date')
+                    ->date('d/m/Y')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
+                    ->date('d/m/Y')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->date('d/m/Y')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('deleted_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('user.name')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('category.id')
-                    ->numeric()
-                    ->sortable(),
             ])
             ->filters([
-                SelectFilter::make('status')
-                    ->options([
-                        'draft' => 'Draft',
-                        'reviewing' => 'Reviewing',
-                        'published' => 'Published',
-                    ]),
-            ])
+                SelectFilter::make('category')
+                    ->relationship('category', 'category_name'),
+                Filter::make('transaction_date')
+                    ->form([
+                        DatePicker::make('created_from'),
+                        DatePicker::make('created_until'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['created_from'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('transaction_date', '>=', $date),
+                            )
+                            ->when(
+                                $data['created_until'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('transaction_date', '<=', $date),
+                            );
+                    })
+            ], layout: FiltersLayout::Modal)
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])

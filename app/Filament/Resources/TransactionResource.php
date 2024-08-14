@@ -31,7 +31,7 @@ class TransactionResource extends Resource
                     ->relationship('category', 'category_name')
                     ->required(),
                 Forms\Components\TextInput::make('amount')
-                    ->placeholder('Rp1')
+                    ->placeholder('Rp 1.000,00')
                     ->required()
                     ->numeric(),
                 Forms\Components\DatePicker::make('transaction_date')
@@ -40,12 +40,14 @@ class TransactionResource extends Resource
                     ->native(false)
                     ->required(),
                 Forms\Components\Textarea::make('description')
-                    ->columnSpanFull(),
+                    ->columnSpanFull()
+                    ->placeholder('Type here your needs!')
+                    ->required(),
                 Forms\Components\FileUpload::make('image')
                     ->image()
                     ->imageEditor()
-                    ->panelLayout('grid')
-                    ->directory('images'),
+                    ->downloadable()
+                    ->panelLayout('grid'),
             ]);
     }
 
@@ -89,8 +91,10 @@ class TransactionResource extends Resource
                     ->relationship('category', 'category_name'),
                 Filter::make('transaction_date')
                     ->form([
-                        DatePicker::make('created_from'),
-                        DatePicker::make('created_until'),
+                        DatePicker::make('created_from')
+                            ->label('From'),
+                        DatePicker::make('created_until')
+                            ->label('Until'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query

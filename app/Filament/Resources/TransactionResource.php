@@ -47,6 +47,7 @@ class TransactionResource extends Resource
                     ->image()
                     ->imageEditor()
                     ->downloadable()
+                    ->directory('images')
                     ->panelLayout('grid'),
             ]);
     }
@@ -89,6 +90,7 @@ class TransactionResource extends Resource
             ->filters([
                 SelectFilter::make('category')
                     ->relationship('category', 'category_name'),
+                Tables\Filters\TrashedFilter::make(),
                 Filter::make('transaction_date')
                     ->form([
                         DatePicker::make('created_from')
@@ -110,10 +112,14 @@ class TransactionResource extends Resource
             ], layout: FiltersLayout::Modal)
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\ForceDeleteAction::make(),
+                Tables\Actions\RestoreAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
+                    Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ]);
     }

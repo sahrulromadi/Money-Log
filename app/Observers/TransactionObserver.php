@@ -21,7 +21,11 @@ class TransactionObserver
     public function updated(Transaction $transaction): void
     {
         if ($transaction->isDirty('image')) {
-            Storage::disk('public')->delete($transaction->getOriginal('image'));
+            $originalImage = $transaction->getOriginal('image');
+
+            if (!empty($originalImage) && Storage::disk('public')->exists($originalImage)) {
+                Storage::disk('public')->delete($originalImage);
+            }
         }
     }
 
@@ -30,9 +34,7 @@ class TransactionObserver
      */
     public function deleted(Transaction $transaction): void
     {
-        if (! is_null($transaction->image)) {
-            Storage::disk('public')->delete($transaction->image);
-        }
+        //
     }
 
     /**
@@ -48,8 +50,8 @@ class TransactionObserver
      */
     public function forceDeleted(Transaction $transaction): void
     {
-        if ($transaction->image) {
-            Storage::disk('public')->delete('storage/images' . $transaction->image);
+        if (! is_null($transaction->image)) {
+            Storage::disk('public')->delete($transaction->image);
         }
     }
 }

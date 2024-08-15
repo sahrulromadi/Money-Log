@@ -4,6 +4,7 @@ namespace App\Filament\Widgets;
 
 use Flowframe\Trend\Trend;
 use App\Models\Transaction;
+use Illuminate\Support\Carbon;
 use Flowframe\Trend\TrendValue;
 use Filament\Widgets\ChartWidget;
 
@@ -14,6 +15,14 @@ class WidgetIncomeChart extends ChartWidget
 
     protected function getData(): array
     {
+        $startDate = ! is_null($this->filters['startDate'] ?? null) ?
+            Carbon::parse($this->filters['startDate']) :
+            Carbon::now()->startOfYear();
+
+        $endDate = ! is_null($this->filters['endDate'] ?? null) ?
+            Carbon::parse($this->filters['endDate']) :
+            Carbon::now();
+
         $data = Trend::query(
             Transaction::whereHas(
                 'category',
@@ -24,8 +33,8 @@ class WidgetIncomeChart extends ChartWidget
         )
             ->dateColumn('transaction_date')
             ->between(
-                start: now()->startOfYear(),
-                end: now()->endOfYear(),
+                start: $startDate,
+                end: $endDate,
             )
             ->perMonth()
             ->sum('amount');

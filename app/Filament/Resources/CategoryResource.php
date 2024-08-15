@@ -9,12 +9,11 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Toggle;
+use Filament\Support\Enums\Alignment;
 use Filament\Forms\Components\Section;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
-use Filament\Tables\Columns\ImageColumn;
-use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\CategoryResource\Pages;
@@ -31,7 +30,6 @@ class CategoryResource extends Resource
     {
         return $form
             ->schema([
-
                 Section::make('Instruction!')
                     ->description('Create a category for your income or expenses such as food, transportation, etc')
                     ->schema([
@@ -45,7 +43,7 @@ class CategoryResource extends Resource
                             ->offIcon('heroicon-s-currency-dollar')
                             ->onColor('success')
                             ->offColor('danger'),
-                    ]),
+                    ])
             ]);
     }
 
@@ -55,10 +53,12 @@ class CategoryResource extends Resource
             ->columns([
                 TextColumn::make('category_name')
                     ->label('Name')
+                    ->alignment(Alignment::Center)
                     ->searchable()
                     ->sortable(),
                 IconColumn::make('is_income')
                     ->label('Type')
+                    ->alignment(Alignment::Center)
                     ->trueIcon('heroicon-s-currency-dollar')
                     ->falseIcon('heroicon-s-currency-dollar')
                     ->trueColor('success')
@@ -67,10 +67,12 @@ class CategoryResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->date('d/m/Y')
+                    ->alignment(Alignment::Center)
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->date('d/m/Y')
+                    ->alignment(Alignment::Center)
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

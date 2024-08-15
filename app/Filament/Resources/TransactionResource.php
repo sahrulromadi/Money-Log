@@ -9,6 +9,8 @@ use Filament\Tables\Table;
 use App\Models\Transaction;
 use Filament\Resources\Resource;
 use Filament\Tables\Filters\Filter;
+use Filament\Support\Enums\Alignment;
+use Filament\Forms\Components\Section;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Filters\SelectFilter;
@@ -27,28 +29,32 @@ class TransactionResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('category_id')
-                    ->relationship('category', 'category_name')
-                    ->required(),
-                Forms\Components\TextInput::make('amount')
-                    ->placeholder('Rp 1.000,00')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\DatePicker::make('transaction_date')
-                    ->label('Date')
-                    ->placeholder('Dec 18, 2024')
-                    ->native(false)
-                    ->required(),
-                Forms\Components\Textarea::make('description')
-                    ->columnSpanFull()
-                    ->placeholder('Type here your needs!')
-                    ->required(),
-                Forms\Components\FileUpload::make('image')
-                    ->image()
-                    ->imageEditor()
-                    ->downloadable()
-                    ->directory('images')
-                    ->panelLayout('grid'),
+                Section::make('Instruction!')
+                    ->description('Create your income or expenditure transactions!')
+                    ->schema([
+                        Forms\Components\Select::make('category_id')
+                            ->relationship('category', 'category_name')
+                            ->required(),
+                        Forms\Components\TextInput::make('amount')
+                            ->placeholder('Rp 1.000,00')
+                            ->required()
+                            ->numeric(),
+                        Forms\Components\DatePicker::make('transaction_date')
+                            ->label('Date')
+                            ->placeholder('Dec 18, 2024')
+                            ->native(false)
+                            ->required(),
+                        Forms\Components\Textarea::make('description')
+                            ->columnSpanFull()
+                            ->placeholder('Type here your needs!')
+                            ->required(),
+                        Forms\Components\FileUpload::make('image')
+                            ->image()
+                            ->imageEditor()
+                            ->downloadable()
+                            ->directory('images')
+                            ->panelLayout('grid'),
+                    ])->columns(2)
             ]);
     }
 
@@ -56,14 +62,17 @@ class TransactionResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('image'),
+                Tables\Columns\ImageColumn::make('image')
+                    ->alignment(Alignment::Center),
                 Tables\Columns\TextColumn::make('category.category_name')
                     ->label('Transaction')
+                    ->alignment(Alignment::Center)
                     ->description(fn(Transaction $record): string => $record->description)
                     ->searchable(['category_name', 'description'])
                     ->sortable(),
                 Tables\Columns\IconColumn::make('category.is_income')
                     ->label('Type')
+                    ->alignment(Alignment::Center)
                     ->trueIcon('heroicon-s-currency-dollar')
                     ->falseIcon('heroicon-s-currency-dollar')
                     ->trueColor('success')
@@ -72,18 +81,22 @@ class TransactionResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('amount')
                     ->numeric()
+                    ->alignment(Alignment::Center)
                     ->money('IDR', locale: 'ID')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('transaction_date')
                     ->label('Date')
+                    ->alignment(Alignment::Center)
                     ->date('d/m/Y')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->date('d/m/Y')
+                    ->alignment(Alignment::Center)
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->date('d/m/Y')
+                    ->alignment(Alignment::Center)
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

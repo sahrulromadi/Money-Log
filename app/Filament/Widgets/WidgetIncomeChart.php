@@ -7,9 +7,12 @@ use App\Models\Transaction;
 use Illuminate\Support\Carbon;
 use Flowframe\Trend\TrendValue;
 use Filament\Widgets\ChartWidget;
+use Filament\Widgets\Concerns\InteractsWithPageFilters;
 
 class WidgetIncomeChart extends ChartWidget
 {
+    use InteractsWithPageFilters;
+
     protected static ?string $heading = 'Total Incomes Chart';
     protected static string $color = 'success';
 

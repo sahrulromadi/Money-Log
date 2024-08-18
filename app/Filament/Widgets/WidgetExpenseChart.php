@@ -7,6 +7,7 @@ use App\Models\Transaction;
 use Illuminate\Support\Carbon;
 use Flowframe\Trend\TrendValue;
 use Filament\Widgets\ChartWidget;
+use Illuminate\Support\Facades\Auth;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 
 class WidgetExpenseChart extends ChartWidget
@@ -26,13 +27,15 @@ class WidgetExpenseChart extends ChartWidget
             Carbon::parse($this->filters['endDate']) :
             Carbon::now();
 
+        $userId = Auth::id();
         $data = Trend::query(
-            Transaction::whereHas(
-                'category',
-                function ($query) {
-                    $query->where('is_income', false);
-                }
-            )
+            Transaction::where('user_id', $userId)
+                ->whereHas(
+                    'category',
+                    function ($query) {
+                        $query->where('is_income', false);
+                    }
+                )
         )
             ->dateColumn('transaction_date')
             ->between(

@@ -4,6 +4,7 @@ namespace App\Filament\Widgets;
 
 use Carbon\Carbon;
 use App\Models\Transaction;
+use Illuminate\Support\Facades\Auth;
 use Filament\Support\Enums\IconPosition;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
@@ -23,15 +24,18 @@ class StatsOverview extends BaseWidget
             Carbon::parse($this->filters['endDate']) :
             Carbon::now();
 
-        $totalExpanses = Transaction::whereHas('category', function ($query) {
-            $query->where('is_income', false);
-        })
+        $userId = Auth::id();
+        $totalExpanses = Transaction::where('user_id', $userId)
+            ->whereHas('category', function ($query) {
+                $query->where('is_income', false);
+            })
             ->whereBetween('transaction_date', [$startDate, $endDate])
             ->sum('amount');
 
-        $totalIncomes = Transaction::whereHas('category', function ($query) {
-            $query->where('is_income', true);
-        })
+        $totalIncomes = Transaction::where('user_id', $userId)
+            ->whereHas('category', function ($query) {
+                $query->where('is_income', true);
+            })
             ->whereBetween('transaction_date', [$startDate, $endDate])
             ->sum('amount');
 

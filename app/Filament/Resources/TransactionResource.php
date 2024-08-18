@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use Filament\Forms;
 use Filament\Tables;
+use App\Models\Category;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\Transaction;
@@ -38,6 +39,11 @@ class TransactionResource extends Resource
                     ->schema([
                         Forms\Components\Select::make('category_id')
                             ->relationship('category', 'category_name')
+                            ->options(function () {
+                                $userId = Auth::id();
+                                return Category::where('user_id', $userId)
+                                    ->pluck('category_name', 'id');
+                            })
                             ->required(),
                         Forms\Components\TextInput::make('amount')
                             ->placeholder('Rp 1.000,00')
@@ -110,7 +116,10 @@ class TransactionResource extends Resource
             ])
             ->filters([
                 SelectFilter::make('category')
-                    ->relationship('category', 'category_name'),
+                    ->relationship('category', 'category_name', function (Builder $query) {
+                        $userId = Auth::id();
+                        $query->where('user_id', $userId);
+                    }),
                 Tables\Filters\TrashedFilter::make(),
                 Filter::make('transaction_date')
                     ->form([

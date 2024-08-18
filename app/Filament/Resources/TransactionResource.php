@@ -10,6 +10,7 @@ use App\Models\Transaction;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables\Filters\Filter;
+use Illuminate\Support\Facades\Auth;
 use Filament\Support\Enums\Alignment;
 use Filament\Forms\Components\Section;
 use Filament\Tables\Enums\FiltersLayout;
@@ -64,6 +65,10 @@ class TransactionResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                $userId = Auth::id();
+                $query->where('user_id', $userId);
+            })
             ->columns([
                 Tables\Columns\ImageColumn::make('image')
                     ->alignment(Alignment::Center),

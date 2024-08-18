@@ -12,6 +12,7 @@ use Filament\Tables\Table;
 use Illuminate\Support\Str;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
+use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Toggle;
 use Filament\Support\Enums\Alignment;
 use Filament\Forms\Components\Section;
@@ -43,12 +44,24 @@ class CategoryResource extends Resource
                             ->label('Name')
                             ->placeholder('Type here!')
                             ->live(onBlur: true)
-                            ->afterStateUpdated(fn(Set $set, ?string $state) => $set('slug', Str::slug($state)))
+                            ->afterStateUpdated(function (Set $set, ?string $state) {
+                                $slug = Str::slug($state);
+                                $baseSlug = $slug;
+                                $count = 1;
+
+                                while (Category::where('slug', $slug)->exists()) {
+                                    $slug = "{$baseSlug}-" . $count;
+                                    $count++;
+                                }
+
+                                $set('slug', $slug);
+                            })
                             ->required(),
                         TextInput::make('slug')
                             ->required()
                             ->placeholder('Generate automatically')
-                            ->unique('categories', 'slug'),
+                            ->unique('categories', 'slug')
+                            ->disabled(),
                         Toggle::make('is_income')
                             ->label('Income')
                             ->onIcon('heroicon-s-currency-dollar')
@@ -62,6 +75,10 @@ class CategoryResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                $userId = Auth::id();
+                $query->where('user_id', $userId);
+            })
             ->columns([
                 TextColumn::make('category_name')
                     ->label('Name')

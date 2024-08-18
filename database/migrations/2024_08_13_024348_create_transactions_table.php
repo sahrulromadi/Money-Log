@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
             $table->integer('amount');
-            $table->timestamp('transaction_date');
+            $table->date('transaction_date');
             $table->text('description')->nullable();
             $table->string('image')->nullable();
             $table->timestamps();

@@ -4,9 +4,13 @@ namespace App\Filament\Resources;
 
 use Filament\Forms;
 use Filament\Tables;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use App\Models\Category;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Toggle;
 use Filament\Support\Enums\Alignment;
@@ -16,6 +20,8 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Infolists\Components\IconEntry;
+use Filament\Infolists\Components\TextEntry;
 use App\Filament\Resources\CategoryResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\CategoryResource\RelationManagers;
@@ -36,7 +42,13 @@ class CategoryResource extends Resource
                         TextInput::make('category_name')
                             ->label('Name')
                             ->placeholder('Type here!')
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(fn(Set $set, ?string $state) => $set('slug', Str::slug($state)))
                             ->required(),
+                        TextInput::make('slug')
+                            ->required()
+                            ->placeholder('Generate automatically')
+                            ->unique('categories', 'slug'),
                         Toggle::make('is_income')
                             ->label('Income')
                             ->onIcon('heroicon-s-currency-dollar')
@@ -86,6 +98,8 @@ class CategoryResource extends Resource
                 Tables\Filters\TrashedFilter::make()
             ])
             ->actions([
+                Tables\Actions\ViewAction::make()
+                    ->modalHeading(fn($record) => $record->category_name),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ForceDeleteAction::make(),
                 Tables\Actions\RestoreAction::make(),
@@ -99,6 +113,24 @@ class CategoryResource extends Resource
             ]);
     }
 
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                TextEntry::make('category_name')
+                    ->label('Name'),
+                IconEntry::make('is_income')
+                    ->label('Type')
+                    ->boolean()
+                    ->trueIcon('heroicon-s-currency-dollar')
+                    ->falseIcon('heroicon-s-currency-dollar')
+                    ->trueColor('success')
+                    ->falseColor('danger')
+            ])
+            ->columns(1)
+            ->inlineLabel();
+    }
+
     public static function getRelations(): array
     {
         return [
@@ -110,8 +142,8 @@ class CategoryResource extends Resource
     {
         return [
             'index' => Pages\ListCategories::route('/'),
-            'create' => Pages\CreateCategory::route('/create'),
-            'edit' => Pages\EditCategory::route('/{record}/edit'),
+            // 'create' => Pages\CreateCategory::route('/create'),
+            // 'edit' => Pages\EditCategory::route('/{record}/edit'),
         ];
     }
 }

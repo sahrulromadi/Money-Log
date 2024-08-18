@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
+            $table->string('slug')->unique();
             $table->string('category_name');
             $table->boolean('is_income');
             $table->timestamps();

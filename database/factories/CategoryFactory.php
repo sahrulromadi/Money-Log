@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,9 +18,10 @@ class CategoryFactory extends Factory
     public function definition(): array
     {
         return [
-            'category_name' => fake()->sentence(1),
+            'user_id' => 1,
+            'category_name' => $categoryName = fake()->sentence(1),
+            'slug' => Str::slug($categoryName),
             'is_income' => fake()->boolean(),
-            'user_id' => 1
         ];
     }
 }

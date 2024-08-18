@@ -7,6 +7,7 @@ use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\Transaction;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables\Filters\Filter;
 use Filament\Support\Enums\Alignment;
@@ -15,6 +16,8 @@ use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\ImageEntry;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\TransactionResource\Pages;
 use App\Filament\Resources\TransactionResource\RelationManagers;
@@ -124,6 +127,8 @@ class TransactionResource extends Resource
                     })
             ], layout: FiltersLayout::Modal)
             ->actions([
+                Tables\Actions\ViewAction::make()
+                    ->modalHeading(fn($record) => $record->category->category_name),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ForceDeleteAction::make(),
                 Tables\Actions\RestoreAction::make(),
@@ -137,6 +142,21 @@ class TransactionResource extends Resource
             ]);
     }
 
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                TextEntry::make('category.category_name'),
+                TextEntry::make('description'),
+                TextEntry::make('amount'),
+                TextEntry::make('transaction_date')
+                    ->dateTime('l, d F Y'),
+                ImageEntry::make('image'),
+            ])
+            ->columns(1)
+            ->inlineLabel();
+    }
+
     public static function getRelations(): array
     {
         return [
@@ -148,8 +168,8 @@ class TransactionResource extends Resource
     {
         return [
             'index' => Pages\ListTransactions::route('/'),
-            'create' => Pages\CreateTransaction::route('/create'),
-            'edit' => Pages\EditTransaction::route('/{record}/edit'),
+            // 'create' => Pages\CreateTransaction::route('/create'),
+            // 'edit' => Pages\EditTransaction::route('/{record}/edit'),
         ];
     }
 }

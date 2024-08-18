@@ -29,7 +29,7 @@ use App\Filament\Resources\CategoryResource\RelationManagers;
 class CategoryResource extends Resource
 {
     protected static ?string $model = Category::class;
-
+    protected static ?string $pluralModelLabel = 'Category';
     protected static ?string $navigationIcon = 'heroicon-s-list-bullet';
 
     public static function form(Form $form): Form

@@ -58,10 +58,10 @@ class CategoryResource extends Resource
                             })
                             ->required(),
                         TextInput::make('slug')
-                            ->required()
                             ->placeholder('Generate automatically')
                             ->unique('categories', 'slug')
-                            ->disabled(),
+                            ->readOnly()
+                            ->required(),
                         Toggle::make('is_income')
                             ->label('Income')
                             ->onIcon('heroicon-s-currency-dollar')
